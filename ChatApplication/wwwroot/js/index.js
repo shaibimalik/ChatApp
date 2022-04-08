@@ -1,4 +1,6 @@
-﻿function loadChat(name) {
+﻿function loadChat(self, name) {
+    $(".person").removeClass("active");
+    $(self).addClass("active");
     $(".chat-wrapper.shown").removeClass("shown");
     $("#select-chat-div").hide();
 

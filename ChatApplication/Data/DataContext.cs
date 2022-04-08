@@ -17,6 +17,8 @@ namespace ChatApplication.Data
         }
 
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

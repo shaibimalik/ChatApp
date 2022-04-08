@@ -21,6 +21,7 @@ namespace ChatApplication.Controllers
 
         [HttpGet]
         public IActionResult Login()
+        
         {
             return View();
         }
@@ -50,12 +51,14 @@ namespace ChatApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string username, string password)
+        public async Task<IActionResult> Register(string username, string password, string email)
         {
             var user = new IdentityUser
             {
-                UserName = username
+                UserName = username,
+                Email = email
             };
+
 
             var result = await _userManager.CreateAsync(user, password);
 

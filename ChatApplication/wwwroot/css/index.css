@@ -120,9 +120,12 @@ body {
                 color: #999;
             }
 
-            .left .people .person.active,
+            
             .left .people .person:hover {
                 background-color: #778BBB;
+            }
+            .left .people .person.active {
+                background-color: #1d4372;
             }
 
                 .left .people .person.active span,
