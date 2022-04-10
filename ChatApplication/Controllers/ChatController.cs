@@ -53,5 +53,23 @@ namespace ChatApplication.Controllers
 
             return Ok();
         }
+
+        public async Task<IActionResult> GetInviteUser(string Search)
+        {
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var recipient = await db.Users.SingleOrDefaultAsync(x => x.UserName == Search);
+            InviteView inviteView = new InviteView()
+            {
+
+                FromUserId = recipient.Id,
+                FromUserName = recipient.UserName
+                
+
+            };
+
+            return RedirectToAction("Index", "Home", inviteView);
+          //  return View(inviteView);
+        }
     }
 }

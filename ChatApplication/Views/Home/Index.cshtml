@@ -1,4 +1,5 @@
 ﻿@model List<ChatApplication.Models.ChatViewModel>;
+
 @{ ViewData["Title"] = $"Chats"; }
 
 @section Styles{
@@ -23,21 +24,63 @@
             <button name="LOGOUT" onclick="location.href='@Url.Action("Logout","Account")'" style="background-color:transparent;border:0;float:right;margin-top:16px"> LOGOUT </button>
         </div>
 
+        <div>
+
+
+        </div>
+
+
+
+        <!--<div class="write">-->
+        @*<i class="fas fa-paperclip"></i>*@
+        <!--<input type="hidden" id="myUsername" value="@User.Identity.Name" />-->
+        @* <textarea id="message-text" placeholder="Write a message..."></textarea>*@
+        <!--<button id="btn-send" onclick="GetInviteUser">-->
+        @*  <i class="fas fa-paper-plane"></i>*@
+        <!--</button>
+    </div>-->
+        @*<form asp-controller="Chat" asp-action="GetInviteUser">
+            <input type="text" name="search" id="UserName"/>
+            <button class="btn btn-primary" id="searchBtn">Search for invite</button>
+        </form>*@
+
+
+        @using (Html.BeginForm("GetInviteUser", "Chat"))
+        {
+            <input type="text" name="Search" />
+            <button class="btn btn-primary" id="searchBtn">Search</button>
+        }
+
+
+        @foreach (var c in Model)
+        {
+            <li class="person" onclick="loadChat(this,'@c.')">
+                <img src="~/images/avatar.png" alt="" />
+                <span class="name">@c.RecipientName</span>
+                <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
+                <span class="preview">@c.LastMessage?.Text</span>
+            </li>
+        }
+
+
         <div class="top">
             <input type="text" id="txtSearch" placeholder="Search" />
         </div>
+
+
 
         @* <a href="@Url.Action("Logout","Account")" id="btn-register">Logout</a>*@
         <ul class="people" id="searchGridView">
 
             @foreach (var c in Model)
             {
-<li class="person" onclick="loadChat(this,'@c.RecipientName')">
-    <img src="~/images/avatar.png" alt="" />
-    <span class="name">@c.RecipientName</span>
-    <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
-    <span class="preview">@c.LastMessage?.Text</span>
-</li>}
+                <li class="person" onclick="loadChat(this,'@c.RecipientName')">
+                    <img src="~/images/avatar.png" alt="" />
+                    <span class="name">@c.RecipientName</span>
+                    <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
+                    <span class="preview">@c.LastMessage?.Text</span>
+                </li>
+            }
 
         </ul>
     </div>
@@ -126,4 +169,8 @@
         $('#txtSearch').focus();
     }
 
+    $("#button2").click(function () {
+        $("#success").show();
+       
+    });
 </script> 
