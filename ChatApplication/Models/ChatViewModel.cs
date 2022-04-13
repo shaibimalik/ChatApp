@@ -11,5 +11,7 @@ namespace ChatApplication.Models
         public List<Message> MyMessages { get; set; }
         public List<Message> OtherMessages { get; set; }
         public Message LastMessage { get; set; }
+        public string FromUserId { get; set; }
+        public string FromUserName { get; set; }
     }
 }

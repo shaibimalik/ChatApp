@@ -1,5 +1,6 @@
 ﻿@model List<ChatApplication.Models.ChatViewModel>;
 
+
 @{ ViewData["Title"] = $"Chats"; }
 
 @section Styles{
@@ -13,10 +14,26 @@
 
     <script src="~/js/textareaAutosize.js"></script>
 }
+<style>
+
+    #SearchList li {
+        float: left;
+        padding-left: 15px;
+        margin: 10px;
+        width: 90%;
+        
+        height: 42px;
+        border: none;
+        background-color: #eceff1;
+       
+    }
+
+
+</style>
 
 <div class="wrapper">
 
-    <div class="left">
+    <div class="left" style="margin:auto">
 
         <div id="titleDiv">
             <span class="title" style="float: left;margin-left: 20px">@User.Identity.Name </span>
@@ -24,65 +41,43 @@
             <button name="LOGOUT" onclick="location.href='@Url.Action("Logout","Account")'" style="background-color:transparent;border:0;float:right;margin-top:16px"> LOGOUT </button>
         </div>
 
-        <div>
+
+        <div class="top">
+
+            <input onkeyup="GetInviteUsers()" type="text" id="invitesearch" placeholder="test" />
+
+            <ul id="SearchList" style="list-style-type:none">
+            </ul>
+
+            @*<input type="text" id="invitesearch" placeholder="test" />*@
+
 
 
         </div>
-
-
-
-        <!--<div class="write">-->
-        @*<i class="fas fa-paperclip"></i>*@
-        <!--<input type="hidden" id="myUsername" value="@User.Identity.Name" />-->
-        @* <textarea id="message-text" placeholder="Write a message..."></textarea>*@
-        <!--<button id="btn-send" onclick="GetInviteUser">-->
-        @*  <i class="fas fa-paper-plane"></i>*@
-        <!--</button>
-    </div>-->
-        @*<form asp-controller="Chat" asp-action="GetInviteUser">
-            <input type="text" name="search" id="UserName"/>
-            <button class="btn btn-primary" id="searchBtn">Search for invite</button>
-        </form>*@
-
-
-        @using (Html.BeginForm("GetInviteUser", "Chat"))
-        {
-            <input type="text" name="Search" />
-            <button class="btn btn-primary" id="searchBtn">Search</button>
-        }
-
-
-        @foreach (var c in Model)
-        {
-            <li class="person" onclick="loadChat(this,'@c.')">
-                <img src="~/images/avatar.png" alt="" />
-                <span class="name">@c.RecipientName</span>
-                <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
-                <span class="preview">@c.LastMessage?.Text</span>
-            </li>
-        }
-
-
-        <div class="top">
+        <div id ="divid"class="top">
             <input type="text" id="txtSearch" placeholder="Search" />
         </div>
 
 
+        <div id="divid1"class="top">
+            <ul class="people" id="searchGridView">
 
-        @* <a href="@Url.Action("Logout","Account")" id="btn-register">Logout</a>*@
-        <ul class="people" id="searchGridView">
+                @foreach (var c in Model)
+                {
+                    
+                    <li class="person" onclick="loadChat(this,'@c.RecipientName')">
+                        <img src="~/images/avatar.png" alt="" />
+                        <span class="name">@c.RecipientName</span>
+                        <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
+                        <span class="preview">@c.LastMessage?.Text</span>
+                    </li>
+                }
 
-            @foreach (var c in Model)
-            {
-                <li class="person" onclick="loadChat(this,'@c.RecipientName')">
-                    <img src="~/images/avatar.png" alt="" />
-                    <span class="name">@c.RecipientName</span>
-                    <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
-                    <span class="preview">@c.LastMessage?.Text</span>
-                </li>
-            }
+            </ul>
+        </div>
 
-        </ul>
+
+
     </div>
 
     <div class="right">
@@ -91,44 +86,44 @@
         </div>
         @foreach (var c in Model)
         {
-<div class="chat-wrapper" data-recipient="@c.RecipientName">
-    <div id="titleDiv">
-        <span class="title">@c.RecipientName <i class="fas fa-circle" style="color:limegreen"></i></span>
-    </div>
+            <div class="chat-wrapper" data-recipient="@c.RecipientName">
+                <div id="titleDiv">
+                    <span class="title">@c.RecipientName <i class="fas fa-circle" style="color:limegreen"></i></span>
+                </div>
 
-    <div class="chat">
-        @{ List<Message> messages = new();
-                            messages.AddRange(c.MyMessages);
-                            messages.AddRange(c.OtherMessages);
-                            foreach (var m in messages.OrderBy(x => x.Timestamp))
+                <div class="chat">
+                    @{ List<Message> messages = new();
+                        messages.AddRange(c.MyMessages);
+                        messages.AddRange(c.OtherMessages);
+                        foreach (var m in messages.OrderBy(x => x.Timestamp))
+                        {
+                            if (c.MyMessages.Contains(m))
                             {
-                                if (c.MyMessages.Contains(m))
-                                {
-            <div class="bubble me">
-                <span class="message-text">@m.Text</span>
-                <span class="message-time">@m.Timestamp.ToShortTimeString()</span>
-            </div> }
-                                else
-                                {
-            <div class="bubble other">
-                <span class="message-text">@m.Text</span>
-                <span class="message-time">@m.Timestamp.ToShortTimeString()</span>
-            </div> }
-                            } }
-    </div>
+                                <div class="bubble me">
+                                    <span class="message-text">@m.Text</span>
+                                    <span class="message-time">@m.Timestamp.ToShortTimeString()</span>
+                                </div> }
+                            else
+                            {
+                                <div class="bubble other">
+                                    <span class="message-text">@m.Text</span>
+                                    <span class="message-time">@m.Timestamp.ToShortTimeString()</span>
+                                </div> }
+                        } }
+                </div>
 
-    <div id="writeDiv">
-        <div class="write">
-            <i class="fas fa-paperclip"></i>
-            <input type="hidden" id="myUsername" value="@User.Identity.Name" />
-            <textarea id="message-text" placeholder="Write a message..."></textarea>
-            <i class="far fa-smile"></i>
-            <button id="btn-send" onclick="sendMessage('@c.RecipientName')">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
-    </div>
-</div>}
+                <div id="writeDiv">
+                    <div class="write">
+                        <i class="fas fa-paperclip"></i>
+                        <input type="hidden" id="myUsername" value="@User.Identity.Name" />
+                        <textarea id="message-text" placeholder="Write a message..."></textarea>
+                        <i class="far fa-smile"></i>
+                        <button id="btn-send" onclick="sendMessage('@c.RecipientName')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>}
     </div>
 </div>
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -143,16 +138,16 @@
         $('#txtSearch').keyup(function () {
             if ($('#txtSearch').val().length > 0) {
                 $('#searchGridView li').hide();
-               // $('#searchGridView li:first').show();
+                // $('#searchGridView li:first').show();
                 $('#searchGridView li span.name:contains(\'' + $('#txtSearch').val() + '\')').parent().show();
             }
             else if ($('#txtSearch').val().length == 0) {
 
                 $('#searchGridView li').show();
-                
+
             }
 
-            
+
         });
 
         $('#txtSearch').keyup(function (event) {
@@ -171,6 +166,45 @@
 
     $("#button2").click(function () {
         $("#success").show();
-       
+
     });
-</script> 
+</script>
+
+<script type="text/javascript">
+  
+    function GetInviteUsers() {
+        
+        var Search = $.trim($("#invitesearch").val());
+        var UserInvite = {
+            Search: Search,
+        };
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            cache: false,
+            url: '/Home/GetInviteUser',
+            data: UserInvite,
+
+            success: function (users) {
+               
+                var HTML=''
+                $.each(users, function (i, user) {
+                    HTML += ` <li class="person" onclick="loadchat(this,'${user.userName}')">
+                    <img src="~/images/avatar.png" alt="" />
+                    <span class="name">${user.userName}</span>
+                </li>`
+                   
+
+                });
+                $('#SearchList').html(HTML)
+                $('#divid').hide();
+                $('#divid1').hide();
+
+                if (Search == '') {
+                $('#divid').show();
+                    $('#divid1').show();
+                }
+            }
+        });
+    }
+</script>

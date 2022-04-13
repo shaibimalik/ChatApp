@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ChatApplication.Models
 {
-    public class InviteView:ChatViewModel
+    public class InviteView
     {
         public string FromUserId { get; set; }
         public String FromUserName { get; set; }

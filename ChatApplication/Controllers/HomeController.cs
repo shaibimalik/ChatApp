@@ -3,6 +3,7 @@ using ChatApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -63,9 +64,33 @@ namespace ChatApplication.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+
+      
+        [HttpPost]
+        public async Task<IActionResult> GetInviteUser(string Search)
+      {
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var recipient = await db.Users.Where(x => x.UserName.Contains( Search)).ToListAsync();
+            //ChatViewModel inviteView = new ChatViewModel()
+            //{
+
+            //    FromUserId = recipient.Id,
+            //    FromUserName = recipient.UserName
+
+
+            //};
+
+            return Json(recipient);
+            //  return View(inviteView);
+        }
+
+
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+   
     }
 }
