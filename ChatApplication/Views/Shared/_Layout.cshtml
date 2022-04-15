@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ChatApplication</title>
     <link rel="stylesheet" href="~/css/normalize.css" />
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     @RenderBody()
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/6eb1355a84.js" crossorigin="anonymous"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
