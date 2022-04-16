@@ -14,22 +14,8 @@
 
     <script src="~/js/textareaAutosize.js"></script>
 }
-<style>
-
-    #SearchList li {
-        border: 1px solid #ddd;
-        margin-top: -1px;
-        /* Prevent double borders */
-        background-color: #f6f6f6;
-        padding: 12px;
-        text-decoration: none;
-        font-size: 18px;
-        color: black;
-        display: block
-    }
 
 
-</style>
 
 <div class="wrapper">
 
@@ -44,9 +30,9 @@
 
         <div class="top">
 
-            <input onkeyup="GetInviteUsers()" type="text" id="invitesearch" placeholder="test" />
+            <input style="float:none" onkeyup="GetInviteUsers()" type="text" id="invitesearch" placeholder="Invite For chat" />
 
-            <ul id="SearchList" style="list-style-type:none">
+            <ul id="SearchList" class="people">
             </ul>
 
             @*<input type="text" id="invitesearch" placeholder="test" />*@
@@ -54,18 +40,18 @@
 
 
         </div>
-        <div id ="divid"class="top">
+        <div id="divid" class="top">
             <input type="text" id="txtSearch" placeholder="Search" />
         </div>
 
 
-        <div id="divid1"class="top">
+        <div id="divid1" class="top">
             <ul class="people" id="searchGridView">
 
                 @foreach (var c in Model)
                 {
-                    
-                    <li class="person" onclick="loadChat(this,'@c.RecipientName')">
+
+                    <li class="person" onclick="loadChat(this, '@c.RecipientName')">
                         <img src="~/images/avatar.png" alt="" />
                         <span class="name">@c.RecipientName</span>
                         <span class="time">@c.LastMessage?.Timestamp.ToShortTimeString()</span>
@@ -126,6 +112,28 @@
             </div>}
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Invitation send successfully
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <script src="~/lib/jquery/dist/jquery.js"></script>
 <script language="javascript" type="text/javascript">
     $.expr[":"].containsNoCase = function (el, i, m) {
@@ -171,9 +179,9 @@
 </script>
 
 <script type="text/javascript">
-  
+
     function GetInviteUsers() {
-        
+
         var Search = $.trim($("#invitesearch").val());
         var UserInvite = {
             Search: Search,
@@ -186,14 +194,16 @@
             data: UserInvite,
 
             success: function (users) {
-               
-                var HTML=''
+
+                var HTML = ''
                 $.each(users, function (i, user) {
-                    HTML += ` <li class="person" onclick="loadchat(this,'${user.userName}')">
-                    <img src="~/images/avatar.png" alt="" />
+                    HTML += ` <li class="person" onclick="SendInvitation(this,'${user.id}')">
+                <img style="height: 25px; width: 20px;" src="/images/plus-solid.svg" />
+
+
                     <span class="name">${user.userName}</span>
                 </li>`
-                   
+
 
                 });
                 $('#SearchList').html(HTML)
@@ -201,10 +211,45 @@
                 $('#divid1').hide();
 
                 if (Search == '') {
-                $('#divid').show();
+                    $('#divid').show();
                     $('#divid1').show();
                 }
             }
         });
     }
 </script>
+
+
+<script type="text/javascript">
+
+    function SendInvitation(Sender, Toid) {
+        debugger
+
+        var sendInvite = {
+            Toid: Toid,
+        };
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            cache: false,
+            url: '/Home/SendInvitation',
+            data: sendInvite,
+
+            success: function () {
+                var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
+                    keyboard: false,
+                    backdrop: true
+                })
+                myModal.show();
+                debugger
+                $("#invitesearch").val('')
+                $("#invitesearch").keyup();
+             
+
+            }
+        });
+    }
+</script>
+
+
+

@@ -38,9 +38,9 @@ namespace ChatApplication.Controllers
                 x.FromUserId == user.Id ||
                 x.ToUserId == user.Id)
                 .ToListAsync();
-
+            var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id && x.Status == true).Select(x => x.ToId).ToListAsync();
             var chats = new List<ChatViewModel>();
-            foreach (var i in await db.Users.ToListAsync())
+            foreach (var i in await db.Users.Where(x => Inviteduser.Contains(x.Id)).ToListAsync()) 
             {
                 if (i == user) continue;
 
@@ -68,10 +68,11 @@ namespace ChatApplication.Controllers
       
         [HttpPost]
         public async Task<IActionResult> GetInviteUser(string Search)
-      {
+     {
 
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var recipient = await db.Users.Where(x => x.UserName.Contains( Search)).ToListAsync();
+            var InvitedUser = await db.Invitations.Where(x => x.FromId == user.Id).Select(x => x.ToId).ToListAsync();
+            var recipient = await db.Users.Where(x => x.UserName.Contains( Search) && !InvitedUser.Contains(x.Id) ).ToListAsync();
             //ChatViewModel inviteView = new ChatViewModel()
             //{
 
@@ -85,7 +86,23 @@ namespace ChatApplication.Controllers
             //  return View(inviteView);
         }
 
+        [HttpPost]
 
+        public async Task<IActionResult> SendInvitation(string Toid) {
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            Invitation invitation = new Invitation()
+            {
+
+                ToId = Toid,
+                FromId= user.Id,
+                Status=false,
+                CreatedDate=DateTime.Now
+            };
+            await db.Invitations.AddAsync(invitation);
+            await db.SaveChangesAsync();
+            return Json("OK");
+        }
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
