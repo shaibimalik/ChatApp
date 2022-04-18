@@ -5,6 +5,11 @@
 
 @section Styles{
     <link rel="stylesheet" href="~/css/index.css">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
 }
 
 @section Scripts{
@@ -15,7 +20,48 @@
     <script src="~/js/textareaAutosize.js"></script>
 }
 
+<style>
 
+    body {
+        margin: 25px;
+    }
+
+    .icon-button {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        color: #333333;
+        background: #dddddd;
+        border: none;
+        outline: none;
+        border-radius: 50%;
+    }
+
+        .icon-button:hover {
+            cursor: pointer;
+        }
+
+        .icon-button:active {
+            background: #cccccc;
+        }
+
+    .icon-button__badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 25px;
+        height: 25px;
+        background: red;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+    }
+</style>
 
 <div class="wrapper">
 
@@ -24,9 +70,20 @@
         <div id="titleDiv">
             <span class="title" style="float: left;margin-left: 20px">@User.Identity.Name </span>
 
+
+
             <button name="LOGOUT" onclick="location.href='@Url.Action("Logout","Account")'" style="background-color:transparent;border:0;float:right;margin-top:16px"> LOGOUT </button>
+            <div>
+                <button type="button" class="icon-button" style="margin-left: 200px">
+                    <span class="material-icons">notifications</span>
+                    <span class="icon-button__badge">2</span>
+                </button>
+            </div>
         </div>
 
+        <div class="badge-notification">
+            <i class="fa fa-bell fa-5x fa-border icon-grey badge"></i>
+        </div>
 
         <div class="top">
 
@@ -66,10 +123,17 @@
 
     </div>
 
+
+
     <div class="right">
         <div id="select-chat-div">
             <p>Select a recepient...</p>
+
+
+
         </div>
+
+
         @foreach (var c in Model)
         {
             <div class="chat-wrapper" data-recipient="@c.RecipientName">
@@ -98,6 +162,7 @@
                         } }
                 </div>
 
+
                 <div id="writeDiv">
                     <div class="write">
                         <i class="fas fa-paperclip"></i>
@@ -122,11 +187,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-               Invitation send successfully
+                Invitation send successfully
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-               
+
             </div>
         </div>
     </div>
@@ -244,7 +309,7 @@
                 debugger
                 $("#invitesearch").val('')
                 $("#invitesearch").keyup();
-             
+
 
             }
         });
