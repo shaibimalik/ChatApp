@@ -1,9 +1,11 @@
 ﻿using ChatApplication.Data;
+using ChatApplication.Hubs;
 using ChatApplication.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,11 +20,13 @@ namespace ChatApplication.Controllers
     {
         private readonly DataContext db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public HomeController(DataContext dataContext, UserManager<IdentityUser> userManager)
+        public HomeController(DataContext dataContext, UserManager<IdentityUser> userManager, IHubContext<ChatHub> hubContext)
         {
             db = dataContext;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
        
@@ -39,12 +43,14 @@ namespace ChatApplication.Controllers
                 x.ToUserId == user.Id)
                 .ToListAsync();
             var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id && x.Status == true).Select(x => x.ToId).ToListAsync();
-            var chats = new List<ChatViewModel>();
+            var count =  db.Invitations.Where(x => x.ToId == user.Id && x.Status == false).Select(x=>x.ToId).Count();
+            var chats = new List<ChatModel>();
+           
             foreach (var i in await db.Users.Where(x => Inviteduser.Contains(x.Id)).ToListAsync()) 
             {
                 if (i == user) continue;
 
-                var chat = new ChatViewModel()
+                var chat = new ChatModel()
                 {
                     MyMessages = allMessages.Where(x => x.FromUserId == user.Id && x.ToUserId == i.Id).ToList(),
                     OtherMessages = allMessages.Where(x => x.FromUserId == i.Id && x.ToUserId == user.Id).ToList(),
@@ -56,11 +62,20 @@ namespace ChatApplication.Controllers
                 chatMessages.AddRange(chat.OtherMessages);
 
                 chat.LastMessage = chatMessages.OrderByDescending(x => x.Timestamp).FirstOrDefault();
-
+                //chat.Count = count;
                 chats.Add(chat);
             }
+            NotifiUsers notifiUsers = new NotifiUsers();
+            notifiUsers.Count = count;
 
-            return View(chats);
+            ChatViewModel chatViewModel = new ChatViewModel();
+            chatViewModel.chatmodel = chats;
+            chatViewModel.notification = notifiUsers;
+
+
+
+
+            return View(chatViewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -72,7 +87,7 @@ namespace ChatApplication.Controllers
 
             var user = await _userManager.GetUserAsync(HttpContext.User);
             var InvitedUser = await db.Invitations.Where(x => x.FromId == user.Id).Select(x => x.ToId).ToListAsync();
-            var recipient = await db.Users.Where(x => x.UserName.Contains( Search) && !InvitedUser.Contains(x.Id) ).ToListAsync();
+            var recipient = await db.Users.Where(x => x.UserName.Contains( Search) && !InvitedUser.Contains(x.Id) && x.Id !=user.Id).ToListAsync();
             //ChatViewModel inviteView = new ChatViewModel()
             //{
 
@@ -101,6 +116,56 @@ namespace ChatApplication.Controllers
             };
             await db.Invitations.AddAsync(invitation);
             await db.SaveChangesAsync();
+            var count = db.Invitations.Where(x => x.FromId == user.Id && x.Status == false).Select(x => x.ToId).Count();
+            var recipient = await db.Users.SingleOrDefaultAsync(x => x.Id == Toid);
+            try
+            {
+                string connectionId = ChatHub.UsernameConnectionId[recipient.UserName];
+
+                await _hubContext.Clients.Client(connectionId).SendAsync("Notification", count);
+                return Json("OK");
+            }
+            catch (Exception ex) {
+
+                string msg = ex.Message;
+                return Json("OK");
+            }
+           
+
+            // return Json("OK");
+        }
+
+
+        public async Task<IActionResult> GetListInvitation()
+        {
+
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var InvitedUser = await db.Invitations.Where(x => x.ToId == user.Id && x.Status==false).Select(x => x.FromId).ToListAsync();
+            var recipient = await db.Users.Where(x => InvitedUser.Contains(x.Id)).ToListAsync();
+            //ChatViewModel inviteView = new ChatViewModel()
+            //{
+
+            //    FromUserId = recipient.Id,
+            //    FromUserName = recipient.UserName
+
+
+            //};
+
+            return Json(recipient);
+            //  return View(inviteView);
+        }
+        [HttpPost]
+        public async Task<IActionResult> HandleInvitation(string Toid, bool Status)
+        {
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var invitedUser = await db.Invitations.Where(x => x.FromId == Toid && x.ToId == user.Id).FirstOrDefaultAsync();
+            invitedUser.Status = Status;
+            invitedUser.ModifiedDate = DateTime.Now;
+            db.Update(invitedUser);
+            await db.SaveChangesAsync();
+
             return Json("OK");
         }
         public IActionResult Error()

@@ -1,4 +1,4 @@
-﻿@model List<ChatApplication.Models.ChatViewModel>;
+﻿@model ChatApplication.Models.ChatViewModel;
 
 
 @{ ViewData["Title"] = $"Chats"; }
@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="~/css/index.css">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
 
 
 }
@@ -16,7 +16,7 @@
     <script src="~/js/index.js"></script>
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/js/chat.js"></script>
-
+    <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/textareaAutosize.js"></script>
 }
 
@@ -63,6 +63,56 @@
     }
 </style>
 
+<style>
+
+    /* Dropdown Button */
+.dropbtn {
+  background-color: transparent;
+  color: white;
+  padding: 16px;
+  font-size: 40px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown button on hover & focus */
+/*.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}*/
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
+
+</style>
+
 <div class="wrapper">
 
     <div class="left" style="margin:auto">
@@ -73,18 +123,52 @@
 
 
             <button name="LOGOUT" onclick="location.href='@Url.Action("Logout","Account")'" style="background-color:transparent;border:0;float:right;margin-top:16px"> LOGOUT </button>
-            <div>
-                <button type="button" class="icon-button" style="margin-left: 200px">
-                    <span class="material-icons">notifications</span>
-                    <span class="icon-button__badge">2</span>
+           
+            
+            @*<div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Dropdown button
                 </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+            </div>*@
+    
+    
+        <div class="dropdown">
+            <button type="button" class="icon-button">
+                <span class="material-icons dropbtn" onclick="myFunction()">notifications</span>
+                <span class="icon-button__badge" id="notificationid">@Model.notification.Count</span>
+            </button>
+            <div id="myDropdown" class="dropdown-content">
+               
             </div>
+        </div>
+    
+    
+    @*<div class="dropdown">
+                <button type="button" class="icon-button" id="dropdownMenuButton" style="margin-left: 200px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="material-icons">notifications</span>
+                    <span class="icon-button__badge" id="notificationid">@Model.notification.Count</span>
+                </button>
+
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+
+
+
+            </div>*@
         </div>
 
         <div class="badge-notification">
             <i class="fa fa-bell fa-5x fa-border icon-grey badge"></i>
         </div>
-
+    
         <div class="top">
 
             <input style="float:none" onkeyup="GetInviteUsers()" type="text" id="invitesearch" placeholder="Invite For chat" />
@@ -105,7 +189,7 @@
         <div id="divid1" class="top">
             <ul class="people" id="searchGridView">
 
-                @foreach (var c in Model)
+                @foreach (var c in Model.chatmodel)
                 {
 
                     <li class="person" onclick="loadChat(this, '@c.RecipientName')">
@@ -132,9 +216,9 @@
 
 
         </div>
+        <input type="hidden" id="myUsername" value="@User.Identity.Name" />
 
-
-        @foreach (var c in Model)
+        @foreach (var c in Model.chatmodel)
         {
             <div class="chat-wrapper" data-recipient="@c.RecipientName">
                 <div id="titleDiv">
@@ -163,10 +247,11 @@
                 </div>
 
 
+
                 <div id="writeDiv">
                     <div class="write">
                         <i class="fas fa-paperclip"></i>
-                        <input type="hidden" id="myUsername" value="@User.Identity.Name" />
+                     @*   <input type="hidden" id="myUsername" value="@User.Identity.Name" />*@
                         <textarea id="message-text" placeholder="Write a message..."></textarea>
                         <i class="far fa-smile"></i>
                         <button id="btn-send" onclick="sendMessage('@c.RecipientName')">
@@ -248,10 +333,12 @@
     function GetInviteUsers() {
 
         var Search = $.trim($("#invitesearch").val());
+        debugger
         var UserInvite = {
             Search: Search,
         };
         $.ajax({
+         
             type: 'POST',
             dataType: 'json',
             cache: false,
@@ -316,5 +403,89 @@
     }
 </script>
 
+<script>
+
+    function myFunction(Sender) {
+        document.getElementById("myDropdown").classList.toggle("show");
 
 
+
+        // Close the dropdown menu if the user clicks outside of it
+        window.onclick = function (event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        GetInvitationList();
+
+    }
+
+</script>
+
+
+
+
+<script>
+
+    function GetInvitationList() {
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            cache: false,
+            url: '/Home/GetListInvitation',
+
+
+            success: function (users) {
+                debugger
+                var HTML = ''
+                $.each(users, function (i, user) {
+                    HTML += ` <a  
+                        <span class="name">${user.userName}</span>
+                        <button onclick="HandleInvitation('${user.id}',true)"> Accept</button>
+                        <button onclick="HandleInvitation('${user.id}',false)"> Reject</button>
+                    </a>`
+
+
+                });
+                $('#myDropdown').html(HTML)
+
+            }
+        });
+    }
+
+    function HandleInvitation(Toid,Status) {
+        debugger
+
+        var HandleInvite = {
+            Toid: Toid,
+            Status: Status
+        };
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            cache: false,
+            url: '/Home/HandleInvitation',
+            data: HandleInvite,
+
+            success: function () {
+                debugger
+                GetInvitationList();
+               
+              
+
+
+            }
+        });
+    }
+
+
+</script>

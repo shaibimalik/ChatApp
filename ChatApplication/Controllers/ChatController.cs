@@ -47,9 +47,18 @@ namespace ChatApplication.Controllers
             await db.AddAsync(message);
             await db.SaveChangesAsync();
 
-            string connectionId = ChatHub.UsernameConnectionId[recipient.UserName];
+            try
+            {
 
-            await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", message.Text, message.Timestamp.ToShortTimeString());
+                string connectionId = ChatHub.UsernameConnectionId[recipient.UserName];
+
+                await _hubContext.Clients.Client(connectionId).SendAsync("RecieveMessage", message.Text, message.Timestamp.ToShortTimeString());
+            }
+            catch (Exception ex) {
+              string msg = ex.Message;
+                return Ok();
+
+            }
 
             return Ok();
         }
