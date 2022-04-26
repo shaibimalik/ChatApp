@@ -1,4 +1,5 @@
-﻿using ChatApplication.Models;
+﻿using ChatApplication.Data;
+using ChatApplication.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,11 +13,13 @@ namespace ChatApplication.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly DataContext db;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, DataContext dataContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            db = dataContext;
         }
 
         [HttpGet]
@@ -53,6 +56,7 @@ namespace ChatApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(string username, string password, string email)
         {
+         
             var user = new IdentityUser
             {
                 UserName = username,
@@ -68,7 +72,7 @@ namespace ChatApplication.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-
+            TempData["Message"] = "User Name Already Exist";
             return RedirectToAction("Register", "Account");
         }
 

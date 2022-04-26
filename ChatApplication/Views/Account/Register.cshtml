@@ -1,13 +1,17 @@
-﻿@{
-    ViewData["Title"] = "Register";
-}
+﻿@{ ViewData["Title"] = "Register"; }
 
 @section Styles{
     <link rel="stylesheet" href="~/css/login.css">
 }
 
 
+
+
+
 <div class="center">
+
+
+
     <form class="form-login" asp-controller="Account" asp-action="Register" method="post">
 
         <h2>Register</h2>
@@ -24,6 +28,16 @@
             <label class="label-form">Email</label>
             <input class="input-form" type="email" name="email" placeholder="abc@xyz.com" required>
         </div>
+        @if (@TempData["Message"] != null)
+        {
+
+    <div>
+        @TempData["Message"]
+    </div>}
         <input type="submit" id="btn-submit" value="Register" style="margin:auto;" />
+
+        <a href="@Url.Action("Login","Account")" id="btn-register" style="margin-left: 50px; font-size: 18px;">LOGIN</a>
     </form>
 </div>
+
+

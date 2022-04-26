@@ -31,7 +31,7 @@ namespace ChatApplication.Controllers
 
        
         public async Task<IActionResult> Index()
-        {
+     {
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account");
@@ -42,11 +42,11 @@ namespace ChatApplication.Controllers
                 x.FromUserId == user.Id ||
                 x.ToUserId == user.Id)
                 .ToListAsync();
-            var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id && x.Status == true).Select(x => x.ToId).ToListAsync();
+            var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id || x.ToId==user.Id && x.Status == true).Select(x => new { Toid =x.ToId,Fromid=x.FromId}).ToListAsync();
             var count =  db.Invitations.Where(x => x.ToId == user.Id && x.Status == false).Select(x=>x.ToId).Count();
             var chats = new List<ChatModel>();
            
-            foreach (var i in await db.Users.Where(x => Inviteduser.Contains(x.Id)).ToListAsync()) 
+            foreach (var i in await db.Users.Where(x => Inviteduser.Select(y => y.Toid).Contains(x.Id)|| Inviteduser.Select(y => y.Fromid).Contains(x.Id)).ToListAsync()) 
             {
                 if (i == user) continue;
 
