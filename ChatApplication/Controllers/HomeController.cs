@@ -42,11 +42,7 @@ namespace ChatApplication.Controllers
                 x.FromUserId == user.Id ||
                 x.ToUserId == user.Id)
                 .ToListAsync();
-<<<<<<< HEAD
-            var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id || x.ToId==user.Id && x.Status == true).Select(x => x.ToId).ToListAsync();
-=======
             var Inviteduser = await db.Invitations.Where(x => x.FromId == user.Id || x.ToId==user.Id && x.Status == true).Select(x => new { Toid =x.ToId,Fromid=x.FromId}).ToListAsync();
->>>>>>> 407fef1020631b09ba0ef11e4e1eebc2d8e06163
             var count =  db.Invitations.Where(x => x.ToId == user.Id && x.Status == false).Select(x=>x.ToId).Count();
             var chats = new List<ChatModel>();
            
