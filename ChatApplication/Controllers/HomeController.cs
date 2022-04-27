@@ -1,6 +1,7 @@
 ﻿using ChatApplication.Data;
 using ChatApplication.Hubs;
 using ChatApplication.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,9 @@ namespace ChatApplication.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHubContext<ChatHub> _hubContext;
 
+        private string latitude;
+        private string longitute;
+    
         public HomeController(DataContext dataContext, UserManager<IdentityUser> userManager, IHubContext<ChatHub> hubContext)
         {
             db = dataContext;
@@ -36,6 +40,9 @@ namespace ChatApplication.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            GeoInfoProvider.GeoInfoProvider geoInfoProvider = new GeoInfoProvider.GeoInfoProvider();
+            var obj = await geoInfoProvider.GetGeoInfo();
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             var allMessages = await db.Messages.Where(x =>
@@ -174,5 +181,8 @@ namespace ChatApplication.Controllers
         }
 
    
+
+
+
     }
 }
