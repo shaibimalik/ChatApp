@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,8 +24,7 @@ namespace ChatApplication.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        private string latitude;
-        private string longitute;
+    
     
         public HomeController(DataContext dataContext, UserManager<IdentityUser> userManager, IHubContext<ChatHub> hubContext)
         {
@@ -41,9 +41,30 @@ namespace ChatApplication.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+
             GeoInfoProvider.GeoInfoProvider geoInfoProvider = new GeoInfoProvider.GeoInfoProvider();
-            var obj = await geoInfoProvider.GetGeoInfo();
+            var response = await geoInfoProvider.GetGeoInfo();
+
+
+           
+            
+
+
+
+
             var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            UserCurrentLocation currentLocation = new UserCurrentLocation();
+            {
+
+                currentLocation = JsonConvert.DeserializeObject<UserCurrentLocation>(response);
+                currentLocation.UserId = user.Id;
+                currentLocation.Status = true;
+                currentLocation.Created = DateTime.Now;
+            };
+
+            await db.userCurrentLocations.AddAsync(currentLocation);
+            await db.SaveChangesAsync();
 
             var allMessages = await db.Messages.Where(x =>
                 x.FromUserId == user.Id ||

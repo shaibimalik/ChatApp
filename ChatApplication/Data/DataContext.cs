@@ -15,10 +15,10 @@ namespace ChatApplication.Data
         {
             Database.EnsureCreated();   // Create database if doesn't exist
         }
-
+        public DbSet<UserCurrentLocation> userCurrentLocations { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
-       
+        
         public IEnumerable<object> AspNetUsers { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
