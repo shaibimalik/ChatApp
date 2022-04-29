@@ -40,31 +40,61 @@ namespace ChatApplication.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-
+            var user = await _userManager.GetUserAsync(HttpContext.User);
 
             GeoInfoProvider.GeoInfoProvider geoInfoProvider = new GeoInfoProvider.GeoInfoProvider();
             var response = await geoInfoProvider.GetGeoInfo();
 
+            var UserLocationExist = db.userCurrentLocations.Where(x => x.UserId == user.Id && x.Status == true && x.Ended == null).Select(x => x.UserId).Count();
 
-           
-            
-
-
-
-
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-
-            UserCurrentLocation currentLocation = new UserCurrentLocation();
+            if (UserLocationExist > 0)
             {
 
-                currentLocation = JsonConvert.DeserializeObject<UserCurrentLocation>(response);
-                currentLocation.UserId = user.Id;
-                currentLocation.Status = true;
-                currentLocation.Created = DateTime.Now;
-            };
+                var userlocation = await db.userCurrentLocations.Where(x => x.UserId == user.Id && x.Status == true && x.Ended == null).FirstOrDefaultAsync();
+                userlocation.Status = false;
+                userlocation.Updated = DateTime.Now;
+                db.Update(userlocation);
+                await db.SaveChangesAsync();
 
-            await db.userCurrentLocations.AddAsync(currentLocation);
-            await db.SaveChangesAsync();
+                UserCurrentLocation currentLocation = new UserCurrentLocation();
+                {
+
+                    currentLocation = JsonConvert.DeserializeObject<UserCurrentLocation>(response);
+                    currentLocation.UserId = user.Id;
+                    currentLocation.Status = true;
+                    currentLocation.Created = DateTime.Now;
+                };
+
+                await db.userCurrentLocations.AddAsync(currentLocation);
+                await db.SaveChangesAsync();
+
+
+            }
+            else
+            {
+                UserCurrentLocation currentLocation = new UserCurrentLocation();
+                {
+
+                    currentLocation = JsonConvert.DeserializeObject<UserCurrentLocation>(response);
+                    currentLocation.UserId = user.Id;
+                    currentLocation.Status = true;
+                    currentLocation.Created = DateTime.Now;
+                };
+
+                await db.userCurrentLocations.AddAsync(currentLocation);
+                await db.SaveChangesAsync();
+
+
+            }
+
+
+
+
+
+
+
+
+          
 
             var allMessages = await db.Messages.Where(x =>
                 x.FromUserId == user.Id ||
@@ -201,8 +231,11 @@ namespace ChatApplication.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-   
-
+        [HttpGet]
+        public IActionResult UserLocation()
+        {
+            return View();
+        }
 
 
     }
